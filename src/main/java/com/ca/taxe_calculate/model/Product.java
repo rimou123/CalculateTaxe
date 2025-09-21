@@ -2,6 +2,9 @@ package com.ca.taxe_calculate.model;
 
 import com.ca.taxe_calculate.enumeration.Category;
 
+/**
+ * Classe représentant un produit dans le panier.
+ */
 public class Product {
 
 	private String name;

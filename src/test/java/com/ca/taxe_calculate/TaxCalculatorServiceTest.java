@@ -7,54 +7,75 @@ import com.ca.taxe_calculate.service.TaxCalculatorService;
 import com.ca.taxe_calculate.enumeration.Category;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Classe de test unitaire pour les méthodes de la classe TaxCalculatorService.
+ * Vérifie le bon calcul des taxes (TVA, importation), des arrondis, et du prix
+ * TTC pour différents types de produits.
+ */
 public class TaxCalculatorServiceTest {
-	
+	/**
+	 * Vérifie le calcul correct de la TVA en fonction de la catégorie du produit :
+	 * - BOOK : 10% - FOOD, MEDICAL : 0% - OTHER : 20%
+	 */
 	@Test
 	void testCalculateTVA() {
-		assertEquals(10.0, TaxCalculatorService.calculateTVA(
-                new Product("Livre", 10.0, 1, false, Category.BOOK)));
+		assertEquals(10.0, TaxCalculatorService.calculateTVA(new Product("Livre", 10.0, 1, false, Category.BOOK)));
 
-        assertEquals(0.0, TaxCalculatorService.calculateTVA(
-                new Product("Chocolat", 5.0, 1, false, Category.FOOD)));
+		assertEquals(0.0, TaxCalculatorService.calculateTVA(new Product("Chocolat", 5.0, 1, false, Category.FOOD)));
 
-        assertEquals(0.0, TaxCalculatorService.calculateTVA(
-                new Product("Médicament", 8.0, 1, false, Category.MEDICAL)));
+		assertEquals(0.0,
+				TaxCalculatorService.calculateTVA(new Product("Médicament", 8.0, 1, false, Category.MEDICAL)));
 
-        assertEquals(20.0, TaxCalculatorService.calculateTVA(
-                new Product("Parfum", 50.0, 1, false, Category.OTHER)));
+		assertEquals(20.0, TaxCalculatorService.calculateTVA(new Product("Parfum", 50.0, 1, false, Category.OTHER)));
 	}
-	
+
+	/**
+	 * Vérifie que la taxe d'importation est bien de 5% si le produit est importé,
+	 * sinon 0%.
+	 */
 	@Test
 	void testCalculateImportTax() {
-		assertEquals(5.0, TaxCalculatorService.calculateImportTax(
-                new Product("Parfum importé", 50.0, 1, true, Category.OTHER)));
+		assertEquals(5.0,
+				TaxCalculatorService.calculateImportTax(new Product("Parfum importé", 50.0, 1, true, Category.OTHER)));
 
-        assertEquals(0.0, TaxCalculatorService.calculateImportTax(
-                new Product("Parfum local", 50.0, 1, false, Category.OTHER)));
+		assertEquals(0.0,
+				TaxCalculatorService.calculateImportTax(new Product("Parfum local", 50.0, 1, false, Category.OTHER)));
 	}
-	
-	@Test
-    void testRoundToNearestFiveCents() {
-        assertEquals(0.95, TaxCalculatorService.roundToNearestFiveCents(0.95));
-        assertEquals(1.00, TaxCalculatorService.roundToNearestFiveCents(0.99));
-        assertEquals(1.00, TaxCalculatorService.roundToNearestFiveCents(1.00));
-        assertEquals(1.05, TaxCalculatorService.roundToNearestFiveCents(1.01));
-        assertEquals(1.05, TaxCalculatorService.roundToNearestFiveCents(1.02));
-    }
-	
-	@Test
-    void testCalculateTaxAmount_book() {
-        Product product = new Product("Livre", 12.49, 1, false, Category.BOOK);
-        double taxes = TaxCalculatorService.calculateTaxAmount(product);
-        assertEquals(1.25, taxes); // 12.49 * 10% = 1.249 → arrondi à 1.25
-    }
-	
-	@Test
-    void testCalculateTotalPrice() {
-        Product product = new Product("Parfum importé", 47.50, 1, true, Category.OTHER);
-        double total = TaxCalculatorService.calculateTotalPrice(product);
-        assertEquals(59.40, total, 0.001); // 47.50 + 11.90
-    }
 
+	/**
+	 * Vérifie que l'arrondi respecte bien la règle d'arrondi aux 5 centimes
+	 * supérieurs.
+	 */
+	@Test
+	void testRoundToNearestFiveCents() {
+		assertEquals(0.95, TaxCalculatorService.roundToNearestFiveCents(0.95));
+		assertEquals(1.00, TaxCalculatorService.roundToNearestFiveCents(0.99));
+		assertEquals(1.00, TaxCalculatorService.roundToNearestFiveCents(1.00));
+		assertEquals(1.05, TaxCalculatorService.roundToNearestFiveCents(1.01));
+		assertEquals(1.05, TaxCalculatorService.roundToNearestFiveCents(1.02));
+	}
+
+	/**
+	 * Vérifie que le montant des taxes est correct pour un livre (TVA 10%, pas
+	 * importé). Prix : 12.49€, taxe attendue = arrondi(12.49 * 10%) = 1.25€
+	 */
+	@Test
+	void testCalculateTaxAmount_book() {
+		Product product = new Product("Livre", 12.49, 1, false, Category.BOOK);
+		double taxes = TaxCalculatorService.calculateTaxAmount(product);
+		assertEquals(1.25, taxes); // 12.49 * 10% = 1.249 → arrondi à 1.25
+	}
+
+	/**
+	 * Vérifie le prix TTC d’un produit importé dans la catégorie OTHER (TVA 20% +
+	 * import 5%). Prix HT : 47.50€ Taxes : 9.50 (TVA) + 2.40 (import) = 11.90 Total
+	 * attendu : 59.40€
+	 */
+	@Test
+	void testCalculateTotalPrice() {
+		Product product = new Product("Parfum importé", 47.50, 1, true, Category.OTHER);
+		double total = TaxCalculatorService.calculateTotalPrice(product);
+		assertEquals(59.40, total, 0.001); // 47.50 + 11.90
+	}
 
 }
