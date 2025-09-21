@@ -44,7 +44,8 @@ public class TaxCalculatorService {
 	 * @return La valeur arrondie à la hausse au multiple de 0.05 le plus proche
 	 */
 	public static double roundToNearestFiveCents(double value) {
-		return Math.ceil(value * 20.0) / 20.0;
+	    double multiple = 0.05;
+	    return Math.ceil(value / multiple) * multiple;
 	}
 
 	/**
